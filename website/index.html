@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Baybayin</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/5.8.5/firebase.js"></script>
+    <script>
+      // Initialize Firebase
+      var config = {
+        apiKey: "AIzaSyB67MjdTExnC8CcMw7RRE3boFGkt5ed8pY",
+        authDomain: "baybayin-233508.firebaseapp.com",
+        databaseURL: "https://baybayin-233508.firebaseio.com",
+        projectId: "baybayin-233508",
+        storageBucket: "baybayin-233508.appspot.com",
+        messagingSenderId: "725614726501"
+      };
+      firebase.initializeApp(config);
+      var database = firebase.database();
+    </script>
+  </head>
+  <body>
+    <input id="clear" type="button" value="clear" onclick="clear_canvas();" />
+    <input id="save" type="button" value="save" onclick="save_canvas();" />
+    <a id="link"></a>
+    <div id="canvasDiv"></div>
+
+    <p>
+      <ol id="drawing_list">
+      </ol>
+    </p>
+
+    <script type="text/javascript" src="js/simplify.js"> </script>
+    <script type="text/javascript" src="js/drawer.js"></script>
+  </body>
+</html>
