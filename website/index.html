@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html style="height:100vh">
   <head>
     <title>Baybayin</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -21,18 +21,52 @@
       var database = firebase.database();
     </script>
   </head>
-  <body>
-    <input id="clear" type="button" value="clear" onclick="clear_canvas();" />
-    <input id="save" type="button" value="save" onclick="save_canvas();" />
-    <a id="link"></a>
-    <div id="canvasDiv"></div>
+  <body style="height:100vh">
+    <section id="start_page">
+      <div class="container">
+        <div class="row">
+        </div>
+      </div>
+    </section>
 
-    <p>
-      <ol id="drawing_list">
-      </ol>
-    </p>
+    <div class="card text-center h-100 w-100">
+      <div class="card-header">
+        <div class="row">
+          <div class="col" style="text-align:start">
+            <button id="clear" class="btn btn-primary" onclick="clear_canvas();"> clear </button>
+          </div>
+          <div class="col mt-1">
+            <h4> Bilis, Baybayin! </h4>
+          </div>
+          <div class="col" style="text-align:end">
+            <button id="save" class="btn btn-primary" onclick="save_canvas();"> save </button>
+          </div>
+        </div>
+      </div>
+      <div class="card-body m-1 p-1">
+        <div id="canvasDiv" class="h-100 w-100 border">
+          <canvas id="canvas"> </canvas>
+        </div>
+      </div>
+      <div class="card-footer text-muted">
+        <p style="margin:0"> © Franz Louis Cesista, 2019 </p>
+      </div>
+    </div>
 
     <script type="text/javascript" src="js/simplify.js"> </script>
     <script type="text/javascript" src="js/drawer.js"></script>
+    <style>
+      #start_page {
+        min-height: 100vh;
+        min-width: 100vw;
+        background-color: #000;
+        display: none;
+      }
+
+      #writepad .container {
+        min-height: 100vh;
+        min-width: 100vw;
+      }
+    </style>
   </body>
 </html>

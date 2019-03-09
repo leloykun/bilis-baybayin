@@ -6,16 +6,19 @@ var d = null;
 var start_time;
 
 var canvasDiv = document.getElementById('canvasDiv');
-canvas = document.createElement('canvas');
-canvas.setAttribute('width', canvasWidth);
-canvas.setAttribute('height', canvasHeight);
-canvas.setAttribute('id', 'canvas');
-canvas.setAttribute('style', 'border:1px solid #000000;');
-canvasDiv.appendChild(canvas);
+var canvas = document.getElementById('canvas');
 if(typeof G_vmlCanvasManager != 'undefined') {
-  canvas = G_vmlCanvasManager.initElement(canvas);
+ canvas = G_vmlCanvasManager.initElement(canvas);
 }
 context = canvas.getContext("2d");
+
+function reset_canvas_size() {
+  canvas.setAttribute('width', $(canvasDiv).width()-10);
+  canvas.setAttribute('height', $(canvasDiv).height()-10);
+  redraw();
+}
+reset_canvas_size();
+window.addEventListener("resize", reset_canvas_size);
 
 var getURLParams = function (name) {
   var params = {};
@@ -129,7 +132,7 @@ function dist_to_line(p, l1, l2) {
   return u/v;
 }
 
-function simplify_drawing() {
+function rescale_drawing() {
   var minx = Number.POSITIVE_INFINITY;
   var miny = Number.POSITIVE_INFINITY;
 
@@ -177,6 +180,8 @@ function got_data(data) {
   $('#drawing_list').empty();
 
   var drawing_list = document.getElementById('drawing_list');
+  if (drawing_list == null)
+    return;
 
   var drawings = data.val();
   var keys = Object.keys(drawings);
@@ -203,7 +208,7 @@ function show_drawing(key) {
   function one_drawing(data) {
     var dbdrawing = data.val();
     drawing = dbdrawing.drawing;
-    simplify_drawing();
+    rescale_drawing();
     redraw();
   }
 }
