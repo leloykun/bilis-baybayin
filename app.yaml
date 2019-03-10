@@ -9,3 +9,6 @@ handlers:
 
 - url: /
   static_dir: website
+
+env_variables:
+  FIREBASE_PROJECT_ID: 'bilisbaybayin'

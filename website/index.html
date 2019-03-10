@@ -23,13 +23,6 @@
     </script>
   </head>
   <body style="height:100vh; font-family:'Gloria Hallelujah', cursive;">
-    <section id="start_page">
-      <div class="container">
-        <div class="row">
-        </div>
-      </div>
-    </section>
-
     <div id="round_announcer_card" class="card text-center h-100 w-100 bg-warning">
       <div class="card-body">
         <div class="row h-100 w-100">
@@ -64,8 +57,8 @@
             <h4 id="time_left" class="m-auto"> 20 </h4>
           </div>
           <div class="col" style="text-align:end">
-            <button id="clear" class="btn btn-secondary btn-sm" onclick="clear_canvas();"> magsimula-ulit </button>
-            <button id="save" class="btn btn-primary btn-sm" onclick="save_canvas();"> i-save </button>
+            <button id="clear_drawing" class="btn btn-secondary btn-sm" onclick="clear_drawing();"> magsimula-ulit </button>
+            <button id="save" class="btn btn-primary btn-sm" onclick="save_drawing();"> i-save </button>
             <button id="end" class="btn btn-danger btn-sm" onclick="end_game();"> tapusin </button>
           </div>
         </div>
@@ -90,7 +83,105 @@
       var round_start_time;
     </script>
     <script type="text/javascript" src="js/simplify.js"> </script>
-    <script type="text/javascript" src="js/drawer.js"></script>
+    <script type="text/javascript" src="js/drawer.js"> </script>
+    <script type="text/javascript">
+      var drawing = new Array();
+      var is_drawing = false;
+      var drawing_start_time;
+
+      var canvasDiv = document.getElementById('canvasDiv');
+      var canvas = document.getElementById('canvas');
+      if(typeof G_vmlCanvasManager != 'undefined')
+       canvas = G_vmlCanvasManager.initElement(canvas);
+
+      function reset_canvas_size() {
+        canvas.setAttribute('width', $(canvasDiv).width()-10);
+        canvas.setAttribute('height', $(canvasDiv).height()-10);
+        draw_on_canvas(canvas, drawing, Number.POSITIVE_INFINITY, false);
+      }
+      reset_canvas_size();
+      window.addEventListener("resize", reset_canvas_size);
+
+      function press(e) {
+        var mouseX = (e.changedTouches ? e.changedTouches[0].pageX : e.pageX) - this.offsetLeft;
+        var mouseY = (e.changedTouches ? e.changedTouches[0].pageY : e.pageY) - this.offsetTop;
+
+        if (drawing.length == 0)
+          drawing_start_time = (new Date()).getTime();
+        time = (new Date()).getTime() - drawing_start_time;;
+
+        is_drawing = true;
+        addClick(mouseX, mouseY, time, true);
+        draw_on_canvas(canvas, drawing, Number.POSITIVE_INFINITY, false);
+      }
+
+      function drag(e) {
+        if(is_drawing){
+          var mouseX = (e.changedTouches ? e.changedTouches[0].pageX : e.pageX) - this.offsetLeft;
+          var mouseY = (e.changedTouches ? e.changedTouches[0].pageY : e.pageY) - this.offsetTop;
+
+          time = (new Date()).getTime() - drawing_start_time;
+
+          addClick(mouseX, mouseY, time, false);
+          draw_on_canvas(canvas, drawing, Number.POSITIVE_INFINITY, false);
+        }
+
+        // Prevent the whole page from dragging if on mobile
+        e.preventDefault();
+      }
+
+      function release() {
+        is_drawing = false;
+        draw_on_canvas(canvas, drawing, Number.POSITIVE_INFINITY, false);
+      }
+
+      function cancel() {
+        is_drawing = false;
+      };
+
+      // Add mouse event listeners to canvas element
+      canvas.addEventListener("mousedown", press, false);
+      canvas.addEventListener("mousemove", drag, false);
+      canvas.addEventListener("mouseup", release);
+      canvas.addEventListener("mouseout", cancel, false);
+
+      // Add touch event listeners to canvas element
+      canvas.addEventListener("touchstart", press, false);
+      canvas.addEventListener("touchmove", drag, false);
+      canvas.addEventListener("touchend", release, false);
+      canvas.addEventListener("touchcancel", cancel, false);
+
+      function addClick(x, y, time, is_new_stroke) {
+        if (is_new_stroke)
+          drawing.push(new Array());
+        drawing[drawing.length-1].push({
+          x: x,
+          y: y,
+          t: time
+        });
+      }
+
+      function clear_drawing() {
+        drawing = new Array();
+        clear_canvas(canvas);
+      }
+
+      function save_drawing() {
+        var ref = database.ref('drawings');
+        var data = {
+          character: letra,
+          drawing: drawing
+        }
+        var result = ref.push(data, dataSent);
+        console.log(result.key);
+
+        function dataSent(err, status) {
+          console.log(status);
+        }
+
+        clear_drawing();
+      }
+    </script>
     <script type="text/javascript">
       var round_announcer_card = document.getElementById("round_announcer_card");
       var round_announcer_card_offset = -$('#round_announcer_card').height();
@@ -120,14 +211,14 @@
         document.getElementById("baybayin_character_announcer").innerHTML = letra;
         document.getElementById("baybayin_character_game").innerHTML = "Baybayin ang: " + letra;
 
-        var id = setInterval(frame, 5);
+        var id = setInterval(frame, 10);
         function frame() {
           if (round_announcer_card_offset >= 0) {
             clearInterval(id);
             document.getElementById("start_card").style.display = "none";
             document.getElementById("game_card").style.display = "block";
           } else {
-            round_announcer_card_offset = Math.min(0, round_announcer_card_offset + 5);
+            round_announcer_card_offset = Math.min(0, round_announcer_card_offset + 10);
             round_announcer_card.style.top = round_announcer_card_offset + "px";
           }
         }
@@ -177,5 +268,8 @@
         min-width: 100vw;
       }
     </style>
+  </body>
+</html>
+>
   </body>
 </html>
