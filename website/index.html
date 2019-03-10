@@ -41,6 +41,9 @@
         <div class="row h-100 w-100">
           <div class="col my-auto">
             <h1> Bilis, Baybayin! </h1>
+            <h6 class="mt-1">
+              <a class="text-muted" href="data.html"> Tingnan ang mga baybay dito </a>
+            </h6>
             <button id="start" class="btn btn-primary btn-lg mt-5" onclick="start_game()"> Magsimula! </button>
           </div>
         </div>
@@ -139,6 +142,16 @@
         is_drawing = false;
       };
 
+      function addClick(x, y, time, is_new_stroke) {
+        if (is_new_stroke)
+          drawing.push(new Array());
+        drawing[drawing.length-1].push({
+          x: x,
+          y: y,
+          t: time
+        });
+      }
+
       // Add mouse event listeners to canvas element
       canvas.addEventListener("mousedown", press, false);
       canvas.addEventListener("mousemove", drag, false);
@@ -150,16 +163,6 @@
       canvas.addEventListener("touchmove", drag, false);
       canvas.addEventListener("touchend", release, false);
       canvas.addEventListener("touchcancel", cancel, false);
-
-      function addClick(x, y, time, is_new_stroke) {
-        if (is_new_stroke)
-          drawing.push(new Array());
-        drawing[drawing.length-1].push({
-          x: x,
-          y: y,
-          t: time
-        });
-      }
 
       function clear_drawing() {
         drawing = new Array();
