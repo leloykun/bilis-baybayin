@@ -199,6 +199,8 @@
       }
 
       function end_game() {
+        clear_drawing();
+
         game_has_started = false;
         round_has_started = false;
         document.getElementById("start_card").style.display = "block";
@@ -210,6 +212,8 @@
       }
 
       function start_round() {
+        clear_drawing();
+
         letra = get_random_letter(consonants) + get_random_letter(vowels);
         document.getElementById("baybayin_character_announcer").innerHTML = letra;
         document.getElementById("baybayin_character_game").innerHTML = "Baybayin ang: " + letra;
