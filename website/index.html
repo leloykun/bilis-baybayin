@@ -2,6 +2,7 @@
 <html style="height:100vh">
   <head>
     <title>Baybayin</title>
+    <link href="https://fonts.googleapis.com/css?family=Gloria+Hallelujah" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
@@ -10,18 +11,18 @@
     <script>
       // Initialize Firebase
       var config = {
-        apiKey: "AIzaSyB67MjdTExnC8CcMw7RRE3boFGkt5ed8pY",
-        authDomain: "baybayin-233508.firebaseapp.com",
-        databaseURL: "https://baybayin-233508.firebaseio.com",
-        projectId: "baybayin-233508",
-        storageBucket: "baybayin-233508.appspot.com",
-        messagingSenderId: "725614726501"
+        apiKey: "AIzaSyD-5dUagH-qb2I0cYL1UCqTWJvkzicOx0s",
+        authDomain: "bilisbaybayin.firebaseapp.com",
+        databaseURL: "https://bilisbaybayin.firebaseio.com",
+        projectId: "bilisbaybayin",
+        storageBucket: "bilisbaybayin.appspot.com",
+        messagingSenderId: "222131179848"
       };
       firebase.initializeApp(config);
       var database = firebase.database();
     </script>
   </head>
-  <body style="height:100vh">
+  <body style="height:100vh; font-family:'Gloria Hallelujah', cursive;">
     <section id="start_page">
       <div class="container">
         <div class="row">
@@ -29,17 +30,43 @@
       </div>
     </section>
 
-    <div class="card text-center h-100 w-100">
-      <div class="card-header">
+    <div id="round_announcer_card" class="card text-center h-100 w-100 bg-warning">
+      <div class="card-body">
+        <div class="row h-100 w-100">
+          <div class="col my-auto">
+            <h4> Baybayin ang </h4>
+            <h1 id="baybayin_character_announcer"> [LETRA] </h1>
+            <h4> sa loob ng 20 segundo </h4>
+            <button id="got_it" class="btn btn-primary mt-5" onclick="got_it()"> Nakuha! </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="start_card" class="card text-center h-100 w-100">
+      <div class="card-body h-100 w-100 m-0 p-0">
+        <div class="row h-100 w-100">
+          <div class="col my-auto">
+            <h1> Bilis, Baybayin! </h1>
+            <button id="start" class="btn btn-primary btn-lg mt-5" onclick="start_game()"> Magsimula! </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="game_card" class="card text-center h-100 w-100 m-0 p-0">
+      <div class="card-header bg-warning">
         <div class="row">
           <div class="col" style="text-align:start">
-            <button id="clear" class="btn btn-primary" onclick="clear_canvas();"> clear </button>
+            <h4 id="baybayin_character_game" class='m-auto'> Baybayin ang: </h4>
           </div>
-          <div class="col mt-1">
-            <h4> Bilis, Baybayin! </h4>
+          <div class="col">
+            <h4 id="time_left" class="m-auto"> 20 </h4>
           </div>
           <div class="col" style="text-align:end">
-            <button id="save" class="btn btn-primary" onclick="save_canvas();"> save </button>
+            <button id="clear" class="btn btn-secondary btn-sm" onclick="clear_canvas();"> magsimula-ulit </button>
+            <button id="save" class="btn btn-primary btn-sm" onclick="save_canvas();"> i-save </button>
+            <button id="end" class="btn btn-danger btn-sm" onclick="end_game();"> tapusin </button>
           </div>
         </div>
       </div>
@@ -47,14 +74,96 @@
         <div id="canvasDiv" class="h-100 w-100 border">
           <canvas id="canvas"> </canvas>
         </div>
+        <!--<div id="drawing_list"></div>-->
       </div>
       <div class="card-footer text-muted">
         <p style="margin:0"> © Franz Louis Cesista, 2019 </p>
       </div>
     </div>
 
+    <script type="text/javascript">
+      var vowels = ["a", "e", "i", "o", "u"];
+      var consonants = ["", "b", "d", "g", "h", "k", "l", "m", "n", "ng", "p", "r", "s", "t", "w", "y"];
+      var letra = "";
+      var game_has_started = false;
+      var round_has_started = false;
+      var round_start_time;
+    </script>
     <script type="text/javascript" src="js/simplify.js"> </script>
     <script type="text/javascript" src="js/drawer.js"></script>
+    <script type="text/javascript">
+      var round_announcer_card = document.getElementById("round_announcer_card");
+      var round_announcer_card_offset = -$('#round_announcer_card').height();
+      round_announcer_card.style.position = "absolute";
+      round_announcer_card.style.top = round_announcer_card_offset + "px";
+      round_announcer_card.style.zIndex = 100;
+
+      document.getElementById("game_card").style.display = "none";
+      function start_game() {
+        game_has_started = true;
+        start_round();
+      }
+
+      function end_game() {
+        game_has_started = false;
+        round_has_started = false;
+        document.getElementById("start_card").style.display = "block";
+        document.getElementById("game_card").style.display = "none";
+      }
+
+      function get_random_letter(letters) {
+        return letters[Math.floor(Math.random()*letters.length)];
+      }
+
+      function start_round() {
+        letra = get_random_letter(consonants) + get_random_letter(vowels);
+        document.getElementById("baybayin_character_announcer").innerHTML = letra;
+        document.getElementById("baybayin_character_game").innerHTML = "Baybayin ang: " + letra;
+
+        var id = setInterval(frame, 5);
+        function frame() {
+          if (round_announcer_card_offset >= 0) {
+            clearInterval(id);
+            document.getElementById("start_card").style.display = "none";
+            document.getElementById("game_card").style.display = "block";
+          } else {
+            round_announcer_card_offset = Math.min(0, round_announcer_card_offset + 5);
+            round_announcer_card.style.top = round_announcer_card_offset + "px";
+          }
+        }
+      }
+
+      function got_it() {
+        var id = setInterval(frame, 5);
+        function frame() {
+          if (round_announcer_card_offset < -$('#round_announcer_card').height()) {
+            clearInterval(id);
+            round_has_started = true;
+            round_start_time = (new Date()).getTime();
+            console.log("round has started")
+          } else {
+            round_announcer_card_offset = Math.max(-$('#round_announcer_card').height()-5, round_announcer_card_offset - 5);
+            round_announcer_card.style.top = round_announcer_card_offset + "px";
+          }
+        }
+      }
+
+      var time_updater = setInterval(update_time, 100);
+      function update_time() {
+        if (!round_has_started)
+          return;
+        if (!game_has_started)
+          return;
+        time_since_start = (new Date()).getTime() - round_start_time;
+        var time_left =  20 - Math.floor(time_since_start/1000);
+        document.getElementById("time_left").innerHTML = time_left;
+        if (time_left <= 0) {
+          round_has_started = false;
+          start_round();
+        }
+      }
+    </script>
+
     <style>
       #start_page {
         min-height: 100vh;

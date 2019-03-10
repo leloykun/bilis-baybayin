@@ -36,7 +36,7 @@ if (params.id) {
   show_drawing(params.id);
 }
 
-var test_ref = firebase.database().ref('drawings/test');
+var test_ref = firebase.database().ref('drawings');
 test_ref.on('value', got_data, err_data);
 
 function press(e) {
@@ -163,9 +163,9 @@ function rescale_drawing() {
 }
 
 function save_canvas() {
-  var ref = database.ref('drawings/test');
+  var ref = database.ref('drawings');
   var data = {
-    name: "test",
+    character: letra,
     drawing: drawing
   }
   var result = ref.push(data, dataSent);
@@ -174,6 +174,8 @@ function save_canvas() {
   function dataSent(err, status) {
     console.log(status);
   }
+
+  clear_canvas();
 }
 
 function got_data(data) {
@@ -202,7 +204,7 @@ function err_data(err) {
 }
 
 function show_drawing(key) {
-  var ref = database.ref('drawings/test/' + key);
+  var ref = database.ref('drawings/' + key);
   ref.once('value', one_drawing, err_data);
 
   function one_drawing(data) {
