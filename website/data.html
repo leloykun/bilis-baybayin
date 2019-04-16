@@ -69,7 +69,7 @@
         for (var i = 0; i < keys.length; ++i)
           add_drawing(keys[i], drawings[keys[i]]);
 
-        var frame_skips = 10;
+        var frame_skips = 20;
         var id = setInterval(frame, frame_skips);
         var t_lim = 0;
         function frame() {
@@ -79,7 +79,7 @@
             t_lim += frame_skips;
             for (var i = 0; i < keys.length; ++i) {
               var canv = document.getElementById(keys[i]);
-              draw_on_canvas(canv, drawings[keys[i]]['drawing'], t_lim, true);
+              draw_on_canvas(canv, drawings[keys[i]]['drawing'], 10, t_lim, true);
             }
           }
         }

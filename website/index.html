@@ -66,7 +66,7 @@
           </div>
         </div>
       </div>
-      <div class="card-body m-1 p-1">
+      <div class="card-body m-0 p-0">
         <div id="canvasDiv" class="h-100 w-100 border">
           <canvas id="canvas"> </canvas>
         </div>
@@ -100,7 +100,7 @@
       function reset_canvas_size() {
         canvas.setAttribute('width', $(canvasDiv).width()-10);
         canvas.setAttribute('height', $(canvasDiv).height()-10);
-        draw_on_canvas(canvas, drawing, Number.POSITIVE_INFINITY, false);
+        draw_on_canvas(canvas, drawing, 1, Number.POSITIVE_INFINITY, false);
       }
       reset_canvas_size();
       window.addEventListener("resize", reset_canvas_size);
@@ -115,7 +115,7 @@
 
         is_drawing = true;
         addClick(mouseX, mouseY, time, true);
-        draw_on_canvas(canvas, drawing, Number.POSITIVE_INFINITY, false);
+        draw_on_canvas(canvas, drawing, 1, Number.POSITIVE_INFINITY, false);
       }
 
       function drag(e) {
@@ -126,7 +126,7 @@
           time = (new Date()).getTime() - drawing_start_time;
 
           addClick(mouseX, mouseY, time, false);
-          draw_on_canvas(canvas, drawing, Number.POSITIVE_INFINITY, false);
+          draw_on_canvas(canvas, drawing, 1, Number.POSITIVE_INFINITY, false);
         }
 
         // Prevent the whole page from dragging if on mobile
@@ -135,7 +135,7 @@
 
       function release() {
         is_drawing = false;
-        draw_on_canvas(canvas, drawing, Number.POSITIVE_INFINITY, false);
+        draw_on_canvas(canvas, drawing, 1, Number.POSITIVE_INFINITY, false);
       }
 
       function cancel() {

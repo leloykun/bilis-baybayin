@@ -12,7 +12,7 @@ function clear_canvas(canv) {
   context.clearRect(0, 0, context.canvas.width, context.canvas.height);
 }
 
-function draw_on_canvas(canv, drawing, t_lim, to_scale) {
+function draw_on_canvas(canv, drawing, line_width, t_lim, to_scale) {
   if (to_scale) {
     var canv_width = canv.clientHeight;
     var canv_height = canv.clientWidth;
@@ -25,7 +25,7 @@ function draw_on_canvas(canv, drawing, t_lim, to_scale) {
 
   context.strokeStyle = "black";
   context.lineJoin = "round";
-  context.lineWidth = 1;
+  context.lineWidth = line_width;
 
   for (var i = 0; i < drawing.length; ++i) {
     for (var j = 0; j < drawing[i].length; ++j) {
