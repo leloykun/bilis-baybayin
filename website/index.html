@@ -98,6 +98,9 @@
        canvas = G_vmlCanvasManager.initElement(canvas);
 
       function reset_canvas_size() {
+        round_announcer_card_offset = -$('#round_announcer_card').height();
+        round_announcer_card.style.top = round_announcer_card_offset + "px";
+
         canvas.setAttribute('width', $(canvasDiv).width()-10);
         canvas.setAttribute('height', $(canvasDiv).height()-10);
         draw_on_canvas(canvas, drawing, line_width, Number.POSITIVE_INFINITY, false);
@@ -189,7 +192,8 @@
 
       function convert_canvas_to_image(canvas) {
         var temp_canvas = create_canvas(256, 256);
-        draw_on_canvas(temp_canvas, drawing, line_width, Number.POSITIVE_INFINITY, true);
+        console.log("convert canvas to image -- cavas size: ", temp_canvas.width, temp_canvas.height)
+        draw_on_canvas(temp_canvas, drawing, line_width, Number.POSITIVE_INFINITY, true, true);
 
       	var image = new Image();
       	image.src    = temp_canvas.toDataURL("image/png");
@@ -239,14 +243,14 @@
             document.getElementById("start_card").style.display = "none";
             document.getElementById("game_card").style.display = "block";
           } else {
-            round_announcer_card_offset = Math.min(0, round_announcer_card_offset + 10);
+            round_announcer_card_offset = Math.min(0, round_announcer_card_offset + 20);
             round_announcer_card.style.top = round_announcer_card_offset + "px";
           }
         }
       }
 
       function got_it() {
-        var id = setInterval(frame, 5);
+        var id = setInterval(frame, 10);
         function frame() {
           if (round_announcer_card_offset < -$('#round_announcer_card').height()) {
             clearInterval(id);
@@ -254,7 +258,7 @@
             round_start_time = (new Date()).getTime();
             console.log("round has started")
           } else {
-            round_announcer_card_offset = Math.max(-$('#round_announcer_card').height()-5, round_announcer_card_offset - 5);
+            round_announcer_card_offset = Math.max(-$('#round_announcer_card').height(), round_announcer_card_offset - 20);
             round_announcer_card.style.top = round_announcer_card_offset + "px";
           }
         }

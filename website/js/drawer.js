@@ -12,11 +12,16 @@ function clear_canvas(canv) {
   context.clearRect(0, 0, context.canvas.width, context.canvas.height);
 }
 
-function draw_on_canvas(canv, drawing, line_width, t_lim, to_scale, eps=20) {
+function draw_on_canvas(canv, drawing, line_width, t_lim, to_scale, separate_scaling=false, eps=20) {
   if (to_scale) {
     var canv_width = canv.clientHeight;
     var canv_height = canv.clientWidth;
-    drawing = scale_drawing(drawing, canv_width, canv_height, eps);
+    if (canv_width == 0 && canv_height == 0) {
+      canv_width = canv.width;
+      canv_height = canv.height;
+    }
+    console.log("draw on cavas -- size of canvas: ", canv_width, canv_height)
+    drawing = scale_drawing(drawing, canv_width, canv_height, separate_scaling, eps);
   }
 
   clear_canvas(canv);
@@ -43,7 +48,13 @@ function draw_on_canvas(canv, drawing, line_width, t_lim, to_scale, eps=20) {
   }
 }
 
-function scale_drawing(drawing, width, height, eps=20, separate_scaling=false) {
+function get_last_time(drawing) {
+  var n = drawing.length;
+  var m = drawing[n-1].length;
+  return drawing[n-1][m-1].t;
+}
+
+function scale_drawing(drawing, width, height, separate_scaling=false, eps=20) {
   var minx = Number.POSITIVE_INFINITY;
   var miny = Number.POSITIVE_INFINITY;
 
@@ -60,16 +71,28 @@ function scale_drawing(drawing, width, height, eps=20, separate_scaling=false) {
     }
   }
 
-  var scale = (Math.min(width, height) - 2*eps) / Math.max(maxx - minx, maxy - miny);
-  if (!separate_scaling && Math.abs(scale - 1) <= 1e-9)
-    return drawing;
+  var scale_x = 1;
+  var scale_y = 1;
+  if (separate_scaling) {
+    scale_x = (width - 2*eps) / (maxx - minx);
+    sacle_y = (height - 2*eps) / (maxy - miny);
+  } else {
+    var scale = (Math.min(width, height) - 2*eps) / Math.max(maxx - minx, maxy - miny);
+    scale_x = scale;
+    scale_y = scale;
+  }
 
-  console.log("scale: ", scale)
+  if (Math.abs(scale_x - 1) <= 1e-9 && Math.abs(scale_y - 1) <= 1e-9)
+    return drawing;
+  console.log("window size: ",  width, height)
+  console.log("maxx minx ", maxx, minx)
+  console.log("maxy miny ", maxy, miny)
+  console.log("scale: ", scale_x, scale_x)
 
   for (var i = 0; i < drawing.length; ++i) {
     for (var j = 0; j < drawing[i].length; ++j) {
-      drawing[i][j].x = Math.round((drawing[i][j].x - minx) * scale) + eps;
-      drawing[i][j].y = Math.round((drawing[i][j].y - miny) * scale) + eps;
+      drawing[i][j].x = Math.round((drawing[i][j].x - minx) * scale_x) + eps;
+      drawing[i][j].y = Math.round((drawing[i][j].y - miny) * scale_y) + eps;
     }
     drawing[i] = simplify(drawing[i], 2, true);
   }
