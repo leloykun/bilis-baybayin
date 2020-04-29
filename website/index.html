@@ -28,7 +28,7 @@
         <div class="row h-100 w-100">
           <div class="col my-auto">
             <h4> Baybayin ang </h4>
-            <h1 id="baybayin_character_announcer"> [LETRA] </h1>
+            <h1 id="baybayin_character_announcer"> [SYLLABLE] </h1>
             <h4> sa loob ng 20 segundo </h4>
             <button id="got_it" class="btn btn-primary mt-5" onclick="got_it()"> Nakuha! </button>
           </div>
@@ -41,10 +41,10 @@
         <div class="row h-100 w-100">
           <div class="col my-auto">
             <h1> Bilis, Baybayin! </h1>
-            <h6 class="mt-1">
-              <a class="text-muted" href="data.html"> Tingnan ang mga baybay dito </a>
-            </h6>
             <button id="start" class="btn btn-primary btn-lg mt-5" onclick="start_game()"> Magsimula! </button>
+            <h4 class="mt-5">
+              <a class="text-muted" href="data.html"> <u> Tingnan ang mga baybay dito </u> </a>
+            </h4>
           </div>
         </div>
       </div>
@@ -60,7 +60,7 @@
             <h4 id="time_left" class="m-auto"> 20 </h4>
           </div>
           <div class="col" style="text-align:end">
-            <button id="clear_drawing" class="btn btn-secondary btn-sm" onclick="clear_drawing();"> magsimula-ulit </button>
+            <button id="clear_drawing" class="btn btn-secondary btn-sm" onclick="clear_drawing();"> ulitin </button>
             <button id="save" class="btn btn-primary btn-sm" onclick="save_drawing();"> i-save </button>
             <button id="end" class="btn btn-danger btn-sm" onclick="end_game();"> tapusin </button>
           </div>
@@ -78,9 +78,8 @@
     </div>
 
     <script type="text/javascript">
-      var vowels = ["a", "e", "i", "o", "u"];
-      var consonants = ["", "b", "d", "g", "h", "k", "l", "m", "n", "ng", "p", "r", "s", "t", "w", "y"];
-      var letra = "";
+      var syllables = ["a", "ba", "da/ra", "e/i", "ga", "ha", "ka", "la", "ma", "na", "nga", "o/u", "pa", "sa", "ta", "tul", "wa", "ya"];
+      var syllable = "";
       var game_has_started = false;
       var round_has_started = false;
       var round_start_time;
@@ -90,6 +89,7 @@
     <script type="text/javascript">
       var drawing = new Array();
       var is_drawing = false;
+      var line_width = 10;
       var drawing_start_time;
 
       var canvasDiv = document.getElementById('canvasDiv');
@@ -100,7 +100,7 @@
       function reset_canvas_size() {
         canvas.setAttribute('width', $(canvasDiv).width()-10);
         canvas.setAttribute('height', $(canvasDiv).height()-10);
-        draw_on_canvas(canvas, drawing, 1, Number.POSITIVE_INFINITY, false);
+        draw_on_canvas(canvas, drawing, line_width, Number.POSITIVE_INFINITY, false);
       }
       reset_canvas_size();
       window.addEventListener("resize", reset_canvas_size);
@@ -115,7 +115,7 @@
 
         is_drawing = true;
         addClick(mouseX, mouseY, time, true);
-        draw_on_canvas(canvas, drawing, 1, Number.POSITIVE_INFINITY, false);
+        draw_on_canvas(canvas, drawing, line_width, Number.POSITIVE_INFINITY, false);
       }
 
       function drag(e) {
@@ -126,7 +126,7 @@
           time = (new Date()).getTime() - drawing_start_time;
 
           addClick(mouseX, mouseY, time, false);
-          draw_on_canvas(canvas, drawing, 1, Number.POSITIVE_INFINITY, false);
+          draw_on_canvas(canvas, drawing, line_width, Number.POSITIVE_INFINITY, false);
         }
 
         // Prevent the whole page from dragging if on mobile
@@ -135,7 +135,7 @@
 
       function release() {
         is_drawing = false;
-        draw_on_canvas(canvas, drawing, 1, Number.POSITIVE_INFINITY, false);
+        draw_on_canvas(canvas, drawing, line_width, Number.POSITIVE_INFINITY, false);
       }
 
       function cancel() {
@@ -172,7 +172,7 @@
       function save_drawing() {
         var ref = database.ref('drawings');
         var data = {
-          character: letra,
+          character: syllable,
           drawing: drawing
         }
         var result = ref.push(data, dataSent);
@@ -182,7 +182,20 @@
           console.log(status);
         }
 
+        console.log(convert_canvas_to_image(canvas))
+
         clear_drawing();
+      }
+
+      function convert_canvas_to_image(canvas) {
+        var temp_canvas = create_canvas(256, 256);
+        draw_on_canvas(temp_canvas, drawing, line_width, Number.POSITIVE_INFINITY, true);
+
+      	var image = new Image();
+      	image.src    = temp_canvas.toDataURL("image/png");
+        image.width  = temp_canvas.width;
+        image.height = temp_canvas.height;
+      	return image;
       }
     </script>
     <script type="text/javascript">
@@ -207,16 +220,17 @@
         document.getElementById("game_card").style.display = "none";
       }
 
-      function get_random_letter(letters) {
-        return letters[Math.floor(Math.random()*letters.length)];
+      function get_random_syllable() {
+        return syllables[Math.floor(Math.random()*syllables.length)];
       }
 
       function start_round() {
         clear_drawing();
 
-        letra = get_random_letter(consonants) + get_random_letter(vowels);
-        document.getElementById("baybayin_character_announcer").innerHTML = letra;
-        document.getElementById("baybayin_character_game").innerHTML = "Baybayin ang: " + letra;
+
+        syllable = get_random_syllable();
+        document.getElementById("baybayin_character_announcer").innerHTML = syllable;
+        document.getElementById("baybayin_character_game").innerHTML = syllable;
 
         var id = setInterval(frame, 10);
         function frame() {
@@ -273,6 +287,19 @@
       #writepad .container {
         min-height: 100vh;
         min-width: 100vw;
+      }
+
+      h1 {
+        font-size: 10vw;
+      }
+      h4 {
+        font-size: 5vw;
+      }
+      h6 {
+        font-size: 2.5vw;
+      }
+      .btn {
+        font-size: 2.5vw;
       }
     </style>
   </body>
