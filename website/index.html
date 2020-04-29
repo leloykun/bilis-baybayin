@@ -61,7 +61,7 @@
           </div>
           <div class="col" style="text-align:end">
             <button id="clear_drawing" class="btn btn-secondary btn-sm" onclick="clear_drawing();"> ulitin </button>
-            <button id="save" class="btn btn-primary btn-sm" onclick="save_drawing();"> i-save </button>
+            <button id="next" class="btn btn-primary btn-sm" onclick="next_round();"> susunod </button>
             <button id="end" class="btn btn-danger btn-sm" onclick="end_game();"> tapusin </button>
           </div>
         </div>
@@ -98,9 +98,6 @@
        canvas = G_vmlCanvasManager.initElement(canvas);
 
       function reset_canvas_size() {
-        round_announcer_card_offset = -$('#round_announcer_card').height();
-        round_announcer_card.style.top = round_announcer_card_offset + "px";
-
         canvas.setAttribute('width', $(canvasDiv).width()-10);
         canvas.setAttribute('height', $(canvasDiv).height()-10);
         draw_on_canvas(canvas, drawing, line_width, Number.POSITIVE_INFINITY, false);
@@ -186,8 +183,6 @@
         }
 
         console.log(convert_canvas_to_image(canvas))
-
-        clear_drawing();
       }
 
       function convert_canvas_to_image(canvas) {
@@ -209,15 +204,16 @@
       round_announcer_card.style.top = round_announcer_card_offset + "px";
       round_announcer_card.style.zIndex = 100;
 
+      var round_num;
+
       document.getElementById("game_card").style.display = "none";
       function start_game() {
+        round_num = 0;
         game_has_started = true;
         start_round();
       }
 
       function end_game() {
-        clear_drawing();
-
         game_has_started = false;
         round_has_started = false;
         document.getElementById("start_card").style.display = "block";
@@ -229,12 +225,11 @@
       }
 
       function start_round() {
-        clear_drawing();
-
+        round_num++;
 
         syllable = get_random_syllable();
         document.getElementById("baybayin_character_announcer").innerHTML = syllable;
-        document.getElementById("baybayin_character_game").innerHTML = syllable;
+        document.getElementById("baybayin_character_game").innerHTML = round_num + ": " + syllable;
 
         var id = setInterval(frame, 10);
         function frame() {
@@ -249,6 +244,19 @@
         }
       }
 
+      function next_round() {
+        save_drawing();
+        end_round();
+      }
+
+      function end_round() {
+        clear_drawing();
+        if (round_num == 6)
+          end_game();
+        else
+          start_round();
+      }
+
       function got_it() {
         var id = setInterval(frame, 10);
         function frame() {
@@ -258,7 +266,7 @@
             round_start_time = (new Date()).getTime();
             console.log("round has started")
           } else {
-            round_announcer_card_offset = Math.max(-$('#round_announcer_card').height(), round_announcer_card_offset - 20);
+            round_announcer_card_offset = Math.max(-$('#round_announcer_card').height()-5, round_announcer_card_offset - 20);
             round_announcer_card.style.top = round_announcer_card_offset + "px";
           }
         }
@@ -275,7 +283,7 @@
         document.getElementById("time_left").innerHTML = time_left;
         if (time_left <= 0) {
           round_has_started = false;
-          start_round();
+          end_round();
         }
       }
     </script>
