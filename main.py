@@ -31,13 +31,8 @@ def preprocess_image(image_source):
     image_b64  = re.sub('^data:image/.+;base64,', '', image_source)
     image_data = base64.b64decode(str(image_b64))
     image_pil  = Image.open(io.BytesIO(image_data))
-    #image_res  = image_pil.resize(input_shape)
-    #image_res.save("last_image.png");
-
-    #image_np   = np.array(image_res)
     image_np   = np.array(image_pil)
     image = image_np[:,:,3] / 255.0
-
     return image
 
 def decode_label(enc):
