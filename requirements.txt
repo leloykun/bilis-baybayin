@@ -1,3 +1,4 @@
+pip==20.1
 Flask
 Jinja2
 Werkzeug
