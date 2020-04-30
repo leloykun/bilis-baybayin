@@ -4,5 +4,4 @@ Jinja2
 Werkzeug
 tensorflow
 pillow
-opencv-python
 gunicorn
