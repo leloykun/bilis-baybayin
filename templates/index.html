@@ -4,11 +4,12 @@
     <title>Baybayin</title>
     <link href="https://fonts.googleapis.com/css?family=Gloria+Hallelujah" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT" crossorigin="anonymous"></script>
+    <!--<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT" crossorigin="anonymous"></script>-->
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.js') }}"> </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-    <script src="https://www.gstatic.com/firebasejs/5.8.5/firebase.js"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/simplify.js') }}"> </script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/drawer.js') }}"> </script>
+    <script src="https://www.gstatic.com/firebasejs/5.8.5/firebase.js"></script>
     <script>
       // Initialize Firebase
       var config = {
@@ -216,9 +217,9 @@
       }
 
       function convert_canvas_to_image(canvas) {
-        var temp_canvas = create_canvas(256, 256);
+        var temp_canvas = create_canvas(64, 64);
         console.log("convert canvas to image -- cavas size: ", temp_canvas.width, temp_canvas.height)
-        draw_on_canvas(temp_canvas, drawing, line_width, Number.POSITIVE_INFINITY, true, true);
+        draw_on_canvas(temp_canvas, drawing, line_width/4, Number.POSITIVE_INFINITY, true, true, 5);
 
       	var image = new Image();
       	image.src    = temp_canvas.toDataURL("image/png");
@@ -301,6 +302,7 @@
       }
 
       function next_round() {
+        round_has_started = false;
         var image = convert_canvas_to_image(canvas);
         $.getJSON($SCRIPT_ROOT + '/save',
           {image_src:image.src, expected_label:syllable},
@@ -312,9 +314,11 @@
             console.log(points)
 
             save_drawing(data.result);
-            end_round();
+            //end_round();
           }
-        );
+        ).always(function() {
+          end_round();
+        });
       }
 
       function end_round() {
@@ -371,6 +375,7 @@
           return;
         time_since_start = (new Date()).getTime() - round_start_time;
         var time_left =  20 - Math.floor(time_since_start/1000);
+        console.log("update_time", time_left, round_start_time);
         document.getElementById("time_left").innerHTML = time_left;
         if (time_left <= 0) {
           next_round();

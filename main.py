@@ -9,6 +9,7 @@ import tensorflow as tf
 import tensorflow.keras as tfk
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'DontTellAnyone'
 
 input_shape = (64, 64)
 syllables = ["a", "ba", "da/ra", "e/i", "ga", "ha", "ka", "la", "ma", "na", "nga", "o/u", "pa", "sa", "ta", "wa", "ya"];
@@ -30,10 +31,11 @@ def preprocess_image(image_source):
     image_b64  = re.sub('^data:image/.+;base64,', '', image_source)
     image_data = base64.b64decode(str(image_b64))
     image_pil  = Image.open(io.BytesIO(image_data))
-    image_res  = image_pil.resize(input_shape)
-    image_res.save("last_image.png");
+    #image_res  = image_pil.resize(input_shape)
+    #image_res.save("last_image.png");
 
-    image_np   = np.array(image_res)
+    #image_np   = np.array(image_res)
+    image_np   = np.array(image_pil)
     image = image_np[:,:,3] / 255.0
 
     return image
@@ -55,17 +57,22 @@ def get_image():
     expected_label = request.args.get('expected_label')
     image_source   = request.args.get('image_src')
 
+    print(expected_label, image_source)
+
     image = preprocess_image(image_source)
-    print(image.shape)
+    print("image size:", image.shape)
 
     global model
     if not model:
         model = tfk.models.load_model('static/baybayin_model.h5')
+        print("reloaded model")
 
     predicted_label = predict(image)
+
+    print("predicted_label: ", predicted_label)
 
     res = (predicted_label == expected_label);
     return jsonify(predicted_label=predicted_label, result=res)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host= '0.0.0.0')
