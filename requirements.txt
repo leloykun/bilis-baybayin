@@ -1,5 +1,6 @@
 Flask
-numpy
+Jinja2
+Werkzeug
 tensorflow
 pillow
 opencv-python
