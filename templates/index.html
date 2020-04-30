@@ -31,7 +31,7 @@
           <div class="col my-auto">
             <h4> Baybayin ang </h4>
             <h1 id="baybayin_character_announcer"> [SYLLABLE] </h1>
-            <h4> sa loob ng 20 segundo </h4>
+            <h4> sa loob ng 10 segundo </h4>
             <button id="got_it" class="btn btn-primary mt-5" onclick="got_it()"> Nakuha! </button>
           </div>
         </div>
@@ -91,12 +91,12 @@
             <h4 id="baybayin_character_game" class='m-auto'> Baybayin ang: </h4>
           </div>
           <div class="col">
-            <h4 id="time_left" class="m-auto"> 20 </h4>
+            <h4 id="time_left" class="m-auto"> 10 </h4>
           </div>
           <div class="col" style="text-align:end">
-            <button id="clear_drawing" class="btn btn-secondary btn-sm" onclick="clear_drawing();"> ulitin </button>
-            <button id="next" class="btn btn-primary btn-sm" onclick="next_round();"> susunod </button>
             <button id="end" class="btn btn-danger btn-sm" onclick="end_game();"> tapusin </button>
+            <button id="clear_drawing" class="btn btn-secondary btn-sm" onclick="clear_drawing();"> linisin </button>
+            <button id="next" class="btn btn-primary btn-sm" onclick="next_round();"> susunod </button>
           </div>
         </div>
       </div>
@@ -107,7 +107,7 @@
         <!--<div id="drawing_list"></div>-->
       </div>
       <div class="card-footer text-muted">
-        <p style="margin:0"> © Franz Louis Cesista, 2019 </p>
+        <p style="margin:0"> <a href="https://dscadmu.org/"> © Developer Students Club, 2020 </a> </p>
       </div>
     </div>
 
@@ -329,7 +329,7 @@
 
         function frame() {
           cur_step += 20;
-          if (cur_step <= 2500) {
+          if (cur_step <= 2000) {
             if (old_points == points) {
               round_failure_card.style.zIndex = 100;
               document.getElementById("round_failure_point_announcer").innerHTML = points + " Puntos";
@@ -374,7 +374,7 @@
         if (!game_has_started)
           return;
         time_since_start = (new Date()).getTime() - round_start_time;
-        var time_left =  20 - Math.floor(time_since_start/1000);
+        var time_left =  10 - Math.floor(time_since_start/1000);
         console.log("update_time", time_left, round_start_time);
         document.getElementById("time_left").innerHTML = time_left;
         if (time_left <= 0) {
