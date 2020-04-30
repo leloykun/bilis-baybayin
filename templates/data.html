@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html style="height:100vh">
+  <head>
+    <title>Mga Binaybay</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Gloria+Hallelujah" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/simplify.js') }}"> </script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/drawer.js') }}"> </script>
+    <script src="https://www.gstatic.com/firebasejs/5.8.5/firebase.js"></script>
+    <script>
+      // Initialize Firebase
+      var config = {
+        apiKey: "AIzaSyD-5dUagH-qb2I0cYL1UCqTWJvkzicOx0s",
+        authDomain: "bilisbaybayin.firebaseapp.com",
+        databaseURL: "https://bilisbaybayin.firebaseio.com",
+        projectId: "bilisbaybayin",
+        storageBucket: "bilisbaybayin.appspot.com",
+        messagingSenderId: "222131179848"
+      };
+      firebase.initializeApp(config);
+      var database = firebase.database();
+    </script>
+  </head>
+  <body class="w-100" style="height:100vh; width:100wh; font-family:'Gloria Hallelujah', cursive;">
+
+    <div class="card text-center w-100 m-0 p-0">
+      <div class="card-header bg-warning">
+        <div class="row">
+          <div class="col" style="text-align:start">
+
+          </div>
+          <div class="col">
+            <h4 class="m-auto"> Mga Binaybay </h4>
+          </div>
+          <div class="col" style="text-align:end">
+            <button id="back_button" class="btn btn-secondary btn-sm" onclick="location.href='/'"> bumalik </button>
+          </div>
+        </div>
+      </div>
+      <div class="card-body border">
+        <div id="draw_area" class="d-flex flex-row flex-wrap align-content-around">
+        </div>
+      </div>
+      <div class="card-footer text-muted">
+
+      </div>
+    </div>
+
+    <script type="text/javascript">
+      var draw_area = document.getElementById('draw_area');
+
+      var is_already_drawing = false;
+      var drawings_ref = firebase.database().ref('drawings');
+      drawings_ref.on('value', draw_all_data);
+
+      var update_version = 0;
+
+      function draw_all_data(data) {
+        if (draw_area == null)
+          return;
+
+        $('#draw_area').empty();
+
+        update_version += 1;
+        var cur_version = JSON.parse(JSON.stringify(update_version));
+
+        var drawings = data.val();
+        console.log(drawings)
+        var keys = Object.keys(drawings);
+        for (var i = 0; i < keys.length; ++i)
+          if (drawings[keys[i]]['match'])
+            add_drawing(keys[i], drawings[keys[i]]);
+
+        var frame_skips = 50;
+        var id = setInterval(frame, frame_skips, cur_version);
+        var t_lim = 0;
+
+        function frame() {
+          if (cur_version != update_version) {
+            clearInterval(id);
+            return;
+          }
+
+          t_lim += frame_skips;
+          if (t_lim > 20000) {
+            clearInterval(id);
+          } else {
+            var did_update = false;
+            for (var i = 0; i < keys.length; ++i) {
+              if (!drawings[keys[i]]['match'])
+                continue;
+              var canv = document.getElementById(keys[i]);
+              var drawing = drawings[keys[i]]['drawing'];
+              if (get_last_time(drawing) + frame_skips < t_lim)
+                continue;
+              draw_on_canvas(canv, drawing, 10, t_lim, true);
+              did_update = true;
+            }
+            if (!did_update)
+              clearInterval(id);
+          }
+        }
+      }
+
+      function add_drawing(key, drawing_data) {
+        var canv = create_canvas(256, 256);
+        canv.classList.add("border");
+        canv.setAttribute("id", key);
+        draw_area.appendChild(canv);
+      }
+    </script>
+    <style>
+      h1 {
+        font-size: 8;
+      }
+      h4 {
+        font-size: 4vw;
+      }
+      h6 {
+        font-size: 2vw;
+      }
+      .btn {
+        font-size: 2vw;
+      }
+    </style>
+  </body>
+</html>

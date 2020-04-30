@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html style="height:100vh">
+  <head>
+    <title>Baybayin</title>
+    <link href="https://fonts.googleapis.com/css?family=Gloria+Hallelujah" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.8.5/firebase.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/simplify.js') }}"> </script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/drawer.js') }}"> </script>
+    <script>
+      // Initialize Firebase
+      var config = {
+        apiKey: "AIzaSyD-5dUagH-qb2I0cYL1UCqTWJvkzicOx0s",
+        authDomain: "bilisbaybayin.firebaseapp.com",
+        databaseURL: "https://bilisbaybayin.firebaseio.com",
+        projectId: "bilisbaybayin",
+        storageBucket: "bilisbaybayin.appspot.com",
+        messagingSenderId: "222131179848"
+      };
+      firebase.initializeApp(config);
+      var database = firebase.database();
+    </script>
+  </head>
+  <body style="height:100vh; font-family:'Gloria Hallelujah', cursive;">
+    <div id="round_announcer_card" class="card text-center h-100 w-100 bg-warning">
+      <div class="card-body">
+        <div class="row h-100 w-100">
+          <div class="col my-auto">
+            <h4> Baybayin ang </h4>
+            <h1 id="baybayin_character_announcer"> [SYLLABLE] </h1>
+            <h4> sa loob ng 20 segundo </h4>
+            <button id="got_it" class="btn btn-primary mt-5" onclick="got_it()"> Nakuha! </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="round_success_card" class="card text-center h-100 w-100 bg-success">
+      <div class="card-body">
+        <div class="row h-100 w-100">
+          <div class="col my-auto">
+            <h4> TAMA! </h4>
+            <h1 id="round_success_point_announcer"> [POINTS] Puntos </h1>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="round_failure_card" class="card text-center h-100 w-100 bg-danger">
+      <div class="card-body">
+        <div class="row h-100 w-100">
+          <div class="col my-auto">
+            <h4> MALI :( </h4>
+            <h1 id="round_failure_point_announcer"> [POINTS] Puntos </h1>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="end_card" class="card text-center h-100 w-100 bg-primary">
+      <div class="card-body">
+        <div class="row h-100 w-100">
+          <div class="col my-auto">
+            <h1 id="end_points_announcer"> [POINTS] Puntos </h1>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="start_card" class="card text-center h-100 w-100">
+      <div class="card-body h-100 w-100 m-0 p-0">
+        <div class="row h-100 w-100">
+          <div class="col my-auto">
+            <h1> Bilis, Baybayin! </h1>
+            <button id="start" class="btn btn-primary btn-lg mt-5" onclick="start_game()"> Magsimula! </button>
+            <h4 class="mt-5">
+              <a class="text-muted" href="/data"> <u> Tingnan ang mga baybay dito </u> </a>
+            </h4>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="game_card" class="card text-center h-100 w-100 m-0 p-0">
+      <div class="card-header bg-warning">
+        <div class="row">
+          <div class="col" style="text-align:start">
+            <h4 id="baybayin_character_game" class='m-auto'> Baybayin ang: </h4>
+          </div>
+          <div class="col">
+            <h4 id="time_left" class="m-auto"> 20 </h4>
+          </div>
+          <div class="col" style="text-align:end">
+            <button id="clear_drawing" class="btn btn-secondary btn-sm" onclick="clear_drawing();"> ulitin </button>
+            <button id="next" class="btn btn-primary btn-sm" onclick="next_round();"> susunod </button>
+            <button id="end" class="btn btn-danger btn-sm" onclick="end_game();"> tapusin </button>
+          </div>
+        </div>
+      </div>
+      <div class="card-body m-0 p-0">
+        <div id="canvasDiv" class="h-100 w-100 border">
+          <canvas id="canvas"> </canvas>
+        </div>
+        <!--<div id="drawing_list"></div>-->
+      </div>
+      <div class="card-footer text-muted">
+        <p style="margin:0"> © Franz Louis Cesista, 2019 </p>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+      var syllables = ["a", "ba", "da/ra", "e/i", "ga", "ha", "ka", "la", "ma", "na", "nga", "o/u", "pa", "sa", "ta", "wa", "ya"];
+      var syllable = "";
+      var game_has_started = false;
+      var round_has_started = false;
+      var round_start_time;
+    </script>
+    <script type="text/javascript">
+      var drawing = new Array();
+      var is_drawing = false;
+      var line_width = 15;
+      var drawing_start_time;
+
+      var canvasDiv = document.getElementById('canvasDiv');
+      var canvas = document.getElementById('canvas');
+      if(typeof G_vmlCanvasManager != 'undefined')
+       canvas = G_vmlCanvasManager.initElement(canvas);
+
+      function reset_canvas_size() {
+        canvas.setAttribute('width', $(canvasDiv).width()-10);
+        canvas.setAttribute('height', $(canvasDiv).height()-10);
+        draw_on_canvas(canvas, drawing, line_width, Number.POSITIVE_INFINITY, false);
+      }
+      reset_canvas_size();
+      window.addEventListener("resize", reset_canvas_size);
+
+      function press(e) {
+        var mouseX = (e.changedTouches ? e.changedTouches[0].pageX : e.pageX) - this.offsetLeft;
+        var mouseY = (e.changedTouches ? e.changedTouches[0].pageY : e.pageY) - this.offsetTop;
+
+        if (drawing.length == 0)
+          drawing_start_time = (new Date()).getTime();
+        time = (new Date()).getTime() - drawing_start_time;;
+
+        is_drawing = true;
+        addClick(mouseX, mouseY, time, true);
+        draw_on_canvas(canvas, drawing, line_width, Number.POSITIVE_INFINITY, false);
+      }
+
+      function drag(e) {
+        if(is_drawing){
+          var mouseX = (e.changedTouches ? e.changedTouches[0].pageX : e.pageX) - this.offsetLeft;
+          var mouseY = (e.changedTouches ? e.changedTouches[0].pageY : e.pageY) - this.offsetTop;
+
+          time = (new Date()).getTime() - drawing_start_time;
+
+          addClick(mouseX, mouseY, time, false);
+          draw_on_canvas(canvas, drawing, line_width, Number.POSITIVE_INFINITY, false);
+        }
+
+        // Prevent the whole page from dragging if on mobile
+        e.preventDefault();
+      }
+
+      function release() {
+        is_drawing = false;
+        draw_on_canvas(canvas, drawing, line_width, Number.POSITIVE_INFINITY, false);
+      }
+
+      function cancel() {
+        is_drawing = false;
+      };
+
+      function addClick(x, y, time, is_new_stroke) {
+        if (is_new_stroke)
+          drawing.push(new Array());
+        drawing[drawing.length-1].push({
+          x: x,
+          y: y,
+          t: time
+        });
+      }
+
+      // Add mouse event listeners to canvas element
+      canvas.addEventListener("mousedown", press, false);
+      canvas.addEventListener("mousemove", drag, false);
+      canvas.addEventListener("mouseup", release);
+      canvas.addEventListener("mouseout", cancel, false);
+
+      // Add touch event listeners to canvas element
+      canvas.addEventListener("touchstart", press, false);
+      canvas.addEventListener("touchmove", drag, false);
+      canvas.addEventListener("touchend", release, false);
+      canvas.addEventListener("touchcancel", cancel, false);
+
+      function clear_drawing() {
+        drawing = new Array();
+        clear_canvas(canvas);
+      }
+
+      function save_drawing(match) {
+        var ref = database.ref('drawings');
+        var data = {
+          character: syllable,
+          drawing: drawing,
+          match: match
+        }
+        var result = ref.push(data, dataSent);
+        console.log(result.key);
+
+        function dataSent(err, status) {
+          console.log(status);
+        }
+      }
+
+      function convert_canvas_to_image(canvas) {
+        var temp_canvas = create_canvas(256, 256);
+        console.log("convert canvas to image -- cavas size: ", temp_canvas.width, temp_canvas.height)
+        draw_on_canvas(temp_canvas, drawing, line_width, Number.POSITIVE_INFINITY, true, true);
+
+      	var image = new Image();
+      	image.src    = temp_canvas.toDataURL("image/png");
+        image.width  = temp_canvas.width;
+        image.height = temp_canvas.height;
+      	return image;
+      }
+    </script>
+    <script type="text/javascript">
+      var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+
+      var round_announcer_card = document.getElementById("round_announcer_card");
+      var round_announcer_card_offset = -$('#round_announcer_card').height()-5;
+      round_announcer_card.style.position = "absolute";
+      round_announcer_card.style.top = round_announcer_card_offset + "px";
+      round_announcer_card.style.zIndex = 100;
+
+      var round_success_card = document.getElementById("round_success_card")
+      round_success_card.style.position = "absolute";
+      round_success_card.style.top = 0 + "px";
+      round_success_card.style.zIndex = -100;
+
+      var round_failure_card = document.getElementById("round_failure_card")
+      round_failure_card.style.position = "absolute";
+      round_failure_card.style.top = 0 + "px";
+      round_failure_card.style.zIndex = -100;
+
+      var end_card = document.getElementById("end_card")
+      end_card.style.position = "absolute";
+      end_card.style.top = 0 + "px";
+      end_card.style.zIndex = 200;
+      end_card.style.display = "none";
+
+      var round_num;
+      var points;
+      var old_points;
+
+      document.getElementById("game_card").style.display = "none";
+      function start_game() {
+        round_num = 0;
+        points = 0;
+        old_points = 0;
+        game_has_started = true;
+        start_round();
+      }
+
+      function end_game() {
+        game_has_started = false;
+        round_has_started = false;
+        document.getElementById("start_card").style.display = "block";
+        document.getElementById("game_card").style.display = "none";
+      }
+
+      function get_random_syllable() {
+        return syllables[Math.floor(Math.random()*syllables.length)];
+      }
+
+      function start_round() {
+        round_num++;
+
+        syllable = get_random_syllable();
+        document.getElementById("baybayin_character_announcer").innerHTML = syllable;
+        document.getElementById("baybayin_character_game").innerHTML = round_num + ": " + syllable;
+
+        var id = setInterval(frame, 10);
+        function frame() {
+          if (round_announcer_card_offset >= 0) {
+            clearInterval(id);
+            document.getElementById("start_card").style.display = "none";
+            document.getElementById("game_card").style.display = "block";
+          } else {
+            round_announcer_card_offset = Math.min(0, round_announcer_card_offset + 20);
+            round_announcer_card.style.top = round_announcer_card_offset + "px";
+          }
+        }
+      }
+
+      function add_point() {
+        points++;
+      }
+
+      function next_round() {
+        var image = convert_canvas_to_image(canvas);
+        $.getJSON($SCRIPT_ROOT + '/save',
+          {image_src:image.src, expected_label:syllable},
+          function(data) {
+            console.log(syllable, " vs. ", data.predicted_label)
+            console.log(data.result)
+            if (data.result)
+              add_point();
+            console.log(points)
+
+            save_drawing(data.result);
+            end_round();
+          }
+        );
+      }
+
+      function end_round() {
+        clear_drawing();
+
+        var id = setInterval(frame, 20);
+        var cur_step = 0;
+
+        function frame() {
+          cur_step += 20;
+          if (cur_step <= 2500) {
+            if (old_points == points) {
+              round_failure_card.style.zIndex = 100;
+              document.getElementById("round_failure_point_announcer").innerHTML = points + " Puntos";
+            } else {
+              round_success_card.style.zIndex = 100;
+              document.getElementById("round_success_point_announcer").innerHTML = points + " Puntos";
+            }
+          } else {
+            clearInterval(id);
+            round_failure_card.style.zIndex = -100;
+            round_success_card.style.zIndex = -100;
+
+            old_points = points;
+
+            if (round_num == 6)
+              end_game();
+            else
+              start_round();
+          }
+        }
+      }
+
+      function got_it() {
+        var id = setInterval(frame, 10);
+        function frame() {
+          if (round_announcer_card_offset < -$('#round_announcer_card').height()) {
+            clearInterval(id);
+            round_has_started = true;
+            round_start_time = (new Date()).getTime();
+            console.log("round has started")
+          } else {
+            round_announcer_card_offset = Math.max(-$('#round_announcer_card').height()-5, round_announcer_card_offset - 20);
+            round_announcer_card.style.top = round_announcer_card_offset + "px";
+          }
+        }
+      }
+
+      var time_updater = setInterval(update_time, 100);
+      function update_time() {
+        if (!round_has_started)
+          return;
+        if (!game_has_started)
+          return;
+        time_since_start = (new Date()).getTime() - round_start_time;
+        var time_left =  20 - Math.floor(time_since_start/1000);
+        document.getElementById("time_left").innerHTML = time_left;
+        if (time_left <= 0) {
+          next_round();
+        }
+      }
+    </script>
+
+    <style>
+      #start_page {
+        min-height: 100vh;
+        min-width: 100vw;
+        background-color: #000;
+        display: none;
+      }
+
+      #writepad .container {
+        min-height: 100vh;
+        min-width: 100vw;
+      }
+
+      h1 {
+        font-size: 10vw;
+      }
+      h4 {
+        font-size: 5vw;
+      }
+      h6 {
+        font-size: 2.5vw;
+      }
+      .btn {
+        font-size: 2.5vw;
+      }
+    </style>
+  </body>
+</html>
+>
+  </body>
+</html>

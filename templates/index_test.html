@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Baybayin</title>
+    <script src="https://www.gstatic.com/firebasejs/5.8.5/firebase.js"></script>
+    <script>
+      // Initialize Firebase
+      var config = {
+        apiKey: "AIzaSyB67MjdTExnC8CcMw7RRE3boFGkt5ed8pY",
+        authDomain: "baybayin-233508.firebaseapp.com",
+        databaseURL: "https://baybayin-233508.firebaseio.com",
+        projectId: "baybayin-233508",
+        storageBucket: "baybayin-233508.appspot.com",
+        messagingSenderId: "725614726501"
+      };
+      firebase.initializeApp(config);
+      var database = firebase.database();
+    </script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.12.0/paper-core.js"></script>
+    <script type="text/javascript">
+      paper.install(window);
+      window.onload = function() {
+        paper.setup('myCanvas');
+    		// Create a simple drawing tool:
+    		var tool = new Tool();
+    		var path;
+
+    		// Define a mousedown and mousedrag handler
+    		tool.onMouseDown = function(event) {
+          if (path)
+            path.selected = false;
+
+    			path = new Path();
+    			path.strokeColor = 'black';
+    			path.add(event.point);
+    		}
+
+    		tool.onMouseDrag = function(event) {
+    			path.add(event.point);
+    		}
+
+        tool.onMouseUp = function(event) {
+          console.log({origLen: path.segments.length});
+          path.simplify(2);
+          console.log({newLen: path.segments.length});
+          path.fullySelected = true;
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <canvas id="myCanvas" resize></canvas>
+  </body>
+</html>
